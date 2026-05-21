@@ -11,6 +11,7 @@ RUN npm run build
 
 FROM nginx:alpine
 
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 # Copiar los archivos compilados de la etapa anterior a Nginx
 COPY --from=builder /app/dist /usr/share/nginx/html
 

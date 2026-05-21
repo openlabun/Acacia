@@ -120,7 +120,7 @@ export function GrafoInteractivo() {
   const { data: graphResponse, isLoading: isLoadingGrafo } = useQuery({
     queryKey: ["grafo-curricular"],
     queryFn: () =>
-      fetch("http://localhost:8000/api/v1/malla-visual").then((res) =>
+      fetch("/api/v1/malla-visual").then((res) =>
         res.json(),
       ),
   });
