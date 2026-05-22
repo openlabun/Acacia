@@ -1,4 +1,3 @@
-
 services:
   neo4j_db:
     image: neo4j:5
@@ -7,7 +6,8 @@ services:
     volumes:
       - neo4j_data:/data
     healthcheck:
-      test: ["CMD-SHELL", "cypher-shell -u neo4j -p tesis123 'RETURN 1' || exit 1"]
+      test:
+        ["CMD-SHELL", "cypher-shell -u neo4j -p tesis123 'RETURN 1' || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -22,7 +22,7 @@ services:
     command: python scripts/graph_builder.py
     depends_on:
       neo4j_db:
-        condition: service_healthy 
+        condition: service_healthy
 
   backend:
     build:
@@ -39,7 +39,7 @@ services:
     build:
       context: ./frontend
     ports:
-      - "5183:80"
+      - "5186:80"
     depends_on:
       - backend
 
