@@ -46,7 +46,8 @@ export function Home() {
         <div className="max-w-md w-full bg-red-50 p-6 rounded-2xl border border-red-200 text-center">
           <h2 className="text-red-800 font-bold text-lg">Error de Conexión</h2>
           <p className="text-red-600 mt-2 text-sm">
-            No pudimos obtener el catálogo de materias. Verifica que el backend esté corriendo.
+            No pudimos obtener el catálogo de materias. <br />
+            Intenta nuevamente.
           </p>
         </div>
       </main>
