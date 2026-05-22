@@ -1,4 +1,3 @@
-// src/hooks/useSimulationLogic.ts
 import { useMemo, useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
@@ -41,7 +40,7 @@ export function useSimulationLogic() {
 
   const { data: graphResponse } = useQuery({
     queryKey: ["grafo-topologia"],
-    queryFn: () => fetch("http://localhost:8000/api/v1/malla-visual").then((res) => res.json()),
+    queryFn: () => fetch("/api/v1/malla-visual").then((res) => res.json()),
     refetchOnWindowFocus: false,
   });
 

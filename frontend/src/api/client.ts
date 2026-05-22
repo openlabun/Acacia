@@ -1,8 +1,7 @@
-// src/api/client.ts
 import type { SimulationPayload, SimulatePathResponse, CatalogoResponse} from '../types/academic';
 
 // Cambia este puerto por el que use tu backend en Python (FastAPI/Flask/Django)
-const API_BASE_URL = 'http://localhost:8000/api/v1';
+const API_BASE_URL = '/api/v1';
 
 export const api = {
   /**

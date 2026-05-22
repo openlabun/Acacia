@@ -1,4 +1,3 @@
-// src/store/academicStore.ts
 import { create } from "zustand";
 import type {
   SimulatePathResponse,
