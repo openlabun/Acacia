@@ -5,23 +5,35 @@ import { LIMITE_BASE_CREDITOS, URLS } from "../../config/constants";
 export function SimulationSettings() {
   const { payload, updatePayload, isFlexibleMode, setFlexibleMode } = useAcademicStore();
   
-  // Estado local encapsulado
+  // Estados locales encapsulados
   const [extracreditoActivo, setExtracreditoActivo] = useState(payload.max_creditos > LIMITE_BASE_CREDITOS);
+  const [creditosInput, setCreditosInput] = useState(payload.max_creditos.toString()); // <-- NUEVO ESTADO VISUAL
+
   const extracreditos = Math.max(0, payload.max_creditos - LIMITE_BASE_CREDITOS);
 
   useEffect(() => {
     setExtracreditoActivo(payload.max_creditos > LIMITE_BASE_CREDITOS);
+    setCreditosInput(payload.max_creditos.toString()); // Sincroniza si el estado global cambia
   }, [payload.max_creditos]);
 
-  const handleMaxCreditosChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const rawValue = e.target.value;
-    if (rawValue === "") {
-      updatePayload({ max_creditos: 0 });
-      return;
+  // 1. Permite al usuario tipear libremente sin forzar límites al instante
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCreditosInput(e.target.value);
+  };
+
+  // 2. Aplica las reglas estrictas solo cuando el usuario termina de escribir (pierde el foco)
+  const handleInputBlur = () => {
+    let value = Number(creditosInput);
+    
+    // Validaciones de seguridad si lo deja vacío o pone símbolos raros
+    if (creditosInput === "" || isNaN(value)) {
+      value = 17; // Valor por defecto seguro
+    } else {
+      value = Math.max(7, Math.min(21, value)); // Aquí aplicamos tus límites
     }
-    const value = Number(rawValue);
-    const limitedValue = Math.max(7, Math.min(21, value));
-    updatePayload({ max_creditos: limitedValue });
+    
+    setCreditosInput(value.toString()); // Actualiza la UI
+    updatePayload({ max_creditos: value }); // Actualiza la Nube
   };
 
   const handleExtracreditoChange = (checked: boolean) => {
@@ -34,7 +46,6 @@ export function SimulationSettings() {
       setExtracreditoActivo(true);
     }
   };
-
   return (
     <div className="flex flex-col gap-6">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
@@ -48,8 +59,9 @@ export function SimulationSettings() {
               type="number"
               min={7}
               max={21}
-              value={payload.max_creditos}
-              onChange={handleMaxCreditosChange}
+              value={creditosInput}       
+              onChange={handleInputChange} 
+              onBlur={handleInputBlur}     
               className="w-full px-4 py-3 pr-4 rounded-lg border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all [&::-webkit-inner-spin-button]:opacity-100 [&::-webkit-inner-spin-button]:cursor-pointer [&::-webkit-outer-spin-button]:opacity-100"
             />
           </div>

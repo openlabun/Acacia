@@ -243,6 +243,36 @@ export function Resultados() {
                       Semestre {tituloSemestre}
                     </h2>
 
+                    <div className="relative flex items-center group print-hide">
+                      <button
+                        type="button"
+                        aria-label="Información sobre la asignación del semestre"
+                        className="text-slate-400 hover:text-blue-400 transition-colors focus:outline-none"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                          className="w-4 h-4 cursor-help"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      </button>
+
+                      {/* Caja del Tooltip Flotante */}
+                      <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-64 p-3 bg-slate-900 text-slate-200 text-xs font-medium rounded-lg shadow-xl border border-slate-700 pointer-events-none transition-all duration-200 opacity-0 scale-95 origin-bottom group-hover:opacity-100 group-hover:scale-100 z-50 leading-normal">
+                        <p>
+                          Este número representa el <span className="text-blue-400 font-bold">semestre de la materia más atrasada</span> que tienes pendiente en este bloque.
+                        </p>
+                        {/* Pequeña flecha apuntando hacia abajo */}
+                        <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-slate-900"></div>
+                      </div>
+                    </div>
+
                     <span className="text-lg font-bold">
                       · {periodoAcademico}
                     </span>
@@ -254,11 +284,10 @@ export function Resultados() {
                         ? 'Se requiere pagar extracrédito.'
                         : undefined
                     }
-                    className={`text-sm font-bold px-3 py-1 rounded-lg transition-all ${
-                      requiereExtracredito
+                    className={`text-sm font-bold px-3 py-1 rounded-lg transition-all ${requiereExtracredito
                         ? 'bg-cyan-100 text-cyan-800 border border-cyan-200 shadow-[0_0_12px_rgba(34,211,238,0.25)] cursor-help'
                         : 'bg-slate-700 text-blue-200'
-                    }`}
+                      }`}
                   >
                     {requiereExtracredito}
                     {semestre.creditos_matriculados} créditos
@@ -277,24 +306,22 @@ export function Resultados() {
                       <article
                         key={materia.codigo}
                         className={`flex flex-col p-5 rounded-xl border transition-all shadow-sm bg-white print-card
-                          ${
-                            isPractica
-                              ? 'border-emerald-400 bg-emerald-50/30 ring-1 ring-emerald-100'
-                              : isCritica
-                                ? 'border-red-300 ring-1 ring-red-100'
-                                : isFlexible
-                                  ? 'border-amber-400 bg-amber-50/30'
-                                  : isPrioritaria
-                                    ? 'border-purple-300 ring-1 ring-purple-100'
-                                    : 'border-slate-200 hover:border-blue-300'
+                          ${isPractica
+                            ? 'border-emerald-400 bg-emerald-50/30 ring-1 ring-emerald-100'
+                            : isCritica
+                              ? 'border-red-300 ring-1 ring-red-100'
+                              : isFlexible
+                                ? 'border-amber-400 bg-amber-50/30'
+                                : isPrioritaria
+                                  ? 'border-purple-300 ring-1 ring-purple-100'
+                                  : 'border-slate-200 hover:border-blue-300'
                           }
                         `}
                       >
                         <div className="flex justify-between items-start gap-2 mb-3">
                           <span
                             className={`font-mono text-xs font-bold tracking-widest 
-                            ${
-                              isPractica
+                            ${isPractica
                                 ? 'text-emerald-600'
                                 : isCritica
                                   ? 'text-red-500'
@@ -303,7 +330,7 @@ export function Resultados() {
                                     : isPrioritaria
                                       ? 'text-purple-500'
                                       : 'text-slate-400'
-                            }`}
+                              }`}
                           >
                             {materia.codigo}
                           </span>
@@ -338,8 +365,7 @@ export function Resultados() {
 
                         <h3
                           className={`text-base font-bold leading-tight mb-4 
-                          ${
-                            isPractica
+                          ${isPractica
                               ? 'text-emerald-900'
                               : isCritica
                                 ? 'text-slate-800'
@@ -348,7 +374,7 @@ export function Resultados() {
                                   : isPrioritaria
                                     ? 'text-purple-950'
                                     : 'text-slate-700'
-                          }`}
+                            }`}
                         >
                           {materia.nombre}
                         </h3>
@@ -356,8 +382,7 @@ export function Resultados() {
                         <div className="mt-auto pt-3 border-t border-slate-100 flex justify-end items-center">
                           <span
                             className={`px-2.5 py-1 rounded-md text-xs font-bold 
-                            ${
-                              isPractica
+                            ${isPractica
                                 ? 'bg-emerald-100 text-emerald-700'
                                 : isCritica
                                   ? 'bg-red-50 text-red-700'
@@ -366,7 +391,7 @@ export function Resultados() {
                                     : isPrioritaria
                                       ? 'bg-purple-50 text-purple-700'
                                       : 'bg-slate-100 text-slate-600'
-                            }`}
+                              }`}
                           >
                             {materia.creditos} cr
                           </span>
