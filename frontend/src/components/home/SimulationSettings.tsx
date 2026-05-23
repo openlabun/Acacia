@@ -135,7 +135,7 @@ export function SimulationSettings() {
 
         <div className="md:col-span-2 flex items-center justify-between bg-emerald-50/50 p-4 rounded-xl border border-emerald-200">
           <div className="pr-4 flex-1">
-            <h3 className="text-sm font-bold text-emerald-900 flex items-center gap-2">💼 Opción de Grado: Práctica Profesional</h3>
+            <h3 className="text-sm font-bold text-emerald-900 flex items-center gap-2">💼 Práctica Profesional</h3>
             <p className="text-xs text-emerald-700 mt-1 pl-2">Si activas esto, el motor matemático ajustará automáticamente la ruta para que curses <strong>PML4130</strong> (Práctica).</p>
           </div>
           <label className="relative inline-flex items-center cursor-pointer ml-1 shrink-0 self-start">
