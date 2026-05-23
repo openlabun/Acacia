@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@tanstack/query-sync-storage-persister": "^5.100.13",
+    "@tanstack/react-query-persist-client": "^5.100.13"
+  }
+}
