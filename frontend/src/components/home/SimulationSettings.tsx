@@ -4,7 +4,7 @@ import { LIMITE_BASE_CREDITOS, URLS } from "../../config/constants";
 
 export function SimulationSettings() {
   const { payload, updatePayload, isFlexibleMode, setFlexibleMode } = useAcademicStore();
-  
+
   // Estado local encapsulado
   const [extracreditoActivo, setExtracreditoActivo] = useState(payload.max_creditos > LIMITE_BASE_CREDITOS);
   const extracreditos = Math.max(0, payload.max_creditos - LIMITE_BASE_CREDITOS);
@@ -13,14 +13,30 @@ export function SimulationSettings() {
     setExtracreditoActivo(payload.max_creditos > LIMITE_BASE_CREDITOS);
   }, [payload.max_creditos]);
 
+
+  // 1. CAMBIO AQUÍ: Permitir la escritura libre sin trabas en tiempo real
   const handleMaxCreditosChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const rawValue = e.target.value;
     if (rawValue === "") {
       updatePayload({ max_creditos: 0 });
       return;
     }
-    const value = Number(rawValue);
-    const limitedValue = Math.max(7, Math.min(21, value));
+
+    // Permitimos cualquier número entero mientras digitan
+    updatePayload({ max_creditos: parseInt(rawValue, 10) });
+  };
+
+
+  // 2. NUEVA FUNCIÓN: Validar los límites estrictos solo cuando el usuario termina de escribir
+  const handleMaxCreditosBlur = () => {
+    // Si quedó vacío o en cero, le asignamos el límite base por defecto (o el mínimo)
+    if (payload.max_creditos === 0) {
+      updatePayload({ max_creditos: LIMITE_BASE_CREDITOS });
+      return;
+    }
+
+    // Ajustar a los límites estrictos del negocio [7 - 21]
+    const limitedValue = Math.max(7, Math.min(21, payload.max_creditos));
     updatePayload({ max_creditos: limitedValue });
   };
 
@@ -30,9 +46,11 @@ export function SimulationSettings() {
       updatePayload({ max_creditos: LIMITE_BASE_CREDITOS });
       return;
     }
+
     if (payload.max_creditos > LIMITE_BASE_CREDITOS) {
       setExtracreditoActivo(true);
     }
+
   };
 
   return (
@@ -48,8 +66,9 @@ export function SimulationSettings() {
               type="number"
               min={7}
               max={21}
-              value={payload.max_creditos}
+              value={payload.max_creditos === 0 ? "" : payload.max_creditos}
               onChange={handleMaxCreditosChange}
+              onBlur={handleMaxCreditosBlur}
               className="w-full px-4 py-3 pr-4 rounded-lg border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all [&::-webkit-inner-spin-button]:opacity-100 [&::-webkit-inner-spin-button]:cursor-pointer [&::-webkit-outer-spin-button]:opacity-100"
             />
           </div>
@@ -64,6 +83,7 @@ export function SimulationSettings() {
               Deshabilitado
             </span>
           </div>
+
           <div className="relative">
             <select
               id="perfil"
@@ -88,18 +108,22 @@ export function SimulationSettings() {
             <h3 className={`text-sm font-bold flex items-center gap-2 ${payload.max_creditos > LIMITE_BASE_CREDITOS ? "text-cyan-900" : "text-slate-500"}`}>
               💳 Extracrédito
             </h3>
+
             <p className={`text-xs mt-1 ${payload.max_creditos > LIMITE_BASE_CREDITOS ? "text-cyan-800" : "text-slate-500"}`}>
               Más de 17 créditos implica pago de extracrédito.
             </p>
+
             <div className={`mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs ${payload.max_creditos > LIMITE_BASE_CREDITOS ? "text-cyan-800" : "text-slate-500"}`}>
               <span><span className="font-semibold">Extracréditos:</span> {extracreditos}</span>
               <span>
+
                 <a href={URLS.PRECIO_EXTRACREDITO} target="_blank" rel="noreferrer" className={`font-semibold underline ${payload.max_creditos > LIMITE_BASE_CREDITOS ? "text-cyan-700" : "text-slate-600"}`}>
                   Valor actual
                 </a>
               </span>
             </div>
           </div>
+
           <label className={`relative inline-flex items-center ml-4 shrink-0 self-start ${payload.max_creditos > LIMITE_BASE_CREDITOS ? "cursor-pointer" : "cursor-not-allowed opacity-60"}`}>
             <input type="checkbox" className="sr-only peer" checked={extracreditoActivo} disabled={payload.max_creditos <= LIMITE_BASE_CREDITOS} onChange={(e) => handleExtracreditoChange(e.target.checked)} />
             <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-cyan-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-cyan-600 peer-disabled:bg-slate-200"></div>
@@ -115,6 +139,7 @@ export function SimulationSettings() {
               <a href={URLS.AVANCE_FLEXIBLE_PDF} target="_blank" rel="noreferrer" className="font-semibold text-amber-800 underline hover:text-amber-900">PDF informativo</a>
             </div>
           </div>
+
           <label className="relative inline-flex items-center cursor-pointer ml-1 shrink-0 self-start">
             <input type="checkbox" className="sr-only peer" checked={isFlexibleMode} onChange={(e) => setFlexibleMode(e.target.checked)} />
             <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-amber-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
@@ -123,7 +148,7 @@ export function SimulationSettings() {
 
         <div className="md:col-span-2 flex items-center justify-between bg-emerald-50/50 p-4 rounded-xl border border-emerald-200">
           <div className="pr-4 flex-1">
-            <h3 className="text-sm font-bold text-emerald-900 flex items-center gap-2">💼 Opción de Grado: Práctica Profesional</h3>
+            <h3 className="text-sm font-bold text-emerald-900 flex items-center gap-2">💼 Práctica Profesional</h3>
             <p className="text-xs text-emerald-700 mt-1 pl-2">Si activas esto, el motor matemático ajustará automáticamente la ruta para que curses <strong>PML4130</strong> (Práctica).</p>
           </div>
           <label className="relative inline-flex items-center cursor-pointer ml-1 shrink-0 self-start">
