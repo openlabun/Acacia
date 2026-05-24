@@ -1,4 +1,3 @@
-import React from 'react'
 import { useNavigate } from "react-router-dom"
 import { useAcademicStore } from "../store/academicStore"
 import { useSimulationLogic } from "../hooks/useSimulationLogic"
@@ -14,104 +13,18 @@ import { SimulationSettings } from "./home/SimulationSettings"
 import { PrioritySelector } from "./home/PrioritySelector"
 import { QuickFillMenu } from "./home/QuickFillMenu"
 
-// Logo
+import { useTutorial } from "../hooks/useTutorial"
+import { TutorialTooltip, CustomBeacon } from "./tutorial/TutorialUI";
 import logoAcacia from "../assets/logo.png"
 
 const JoyrideComponent = Joyride as any;
-
-function TutorialTooltip({ index, step, backProps, primaryProps, skipProps, isLastStep }: any) {
-  if (index === 0) {
-    return (
-      <div className="bg-white rounded-3xl shadow-2xl border border-slate-100 p-8 max-w-sm mx-auto flex flex-col items-center gap-6 text-center animate-fade-in-up">
-        <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-200">
-          <span className="text-3xl text-white">🎓</span>
-        </div>
-
-        <h2 className="text-3xl font-black text-slate-800 tracking-tight">
-          ¡Bienvenido!
-        </h2>
-
-        <p className="text-sm md:text-base text-slate-500 leading-relaxed px-2">
-          Te mostramos un rápido tutorial para que saques el máximo provecho al planificador académico.
-        </p>
-
-        <button
-          {...primaryProps}
-          className="w-full bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white font-bold py-4 rounded-2xl shadow-lg shadow-blue-100 transition-all text-base tracking-wide outline-none focus:outline-none"
-        >
-          ¡Comencemos!
-        </button>
-      </div>
-    );
-  }
-
-  return (
-    <div className="bg-white rounded-xl shadow-xl border border-slate-100 p-5 max-w-xs flex flex-col gap-3">
-      {step.title && <h3 className="font-bold text-slate-800 text-base">{step.title}</h3>}
-      <div className="text-sm text-slate-600 leading-relaxed">{step.content}</div>
-      <div className="flex justify-between items-center gap-4 mt-2">
-        {index > 0 && (
-          <button {...backProps} className="text-xs font-bold text-slate-400 hover:text-slate-600 px-2 py-1 outline-none focus:outline-none">
-            Atrás
-          </button>
-        )}
-        <div className="flex gap-2 ml-auto">
-          <button {...skipProps} className="text-xs font-semibold text-slate-400 hover:text-slate-500 px-2 py-1 outline-none focus:outline-none">
-            Omitir
-          </button>
-          <button {...primaryProps} className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-4 py-2 rounded-lg shadow-sm outline-none focus:outline-none">
-            {isLastStep ? "Finalizar" : "Siguiente"}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function CustomBeacon({ ...props }: any) {
-  return (
-    <button
-      {...props}
-      type="button"
-      className="relative flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-[10px] px-2 py-2 rounded-md shadow-sm transition-all transform active:scale-95 group outline-none focus:outline-none"
-    >
-      {/* Efecto de pulso en el fondo para llamar la atención sutilmente */}
-      <span className="absolute inline-flex h-full w-full rounded-md bg-blue-400 opacity-20 animate-ping top-0 left-0 -z-10"></span>
-
-      <span>Reanudar Tutorial</span>
-    </button>
-  );
-}
 
 export function Home() {
   const navigate = useNavigate()
   const { payload } = useAcademicStore()
   const { estado, acciones, modales, mutacion } = useSimulationLogic()
 
-  const [runTutorial, setRunTutorial] = React.useState(() => {
-  // Envolvemos en un try-catch porque navegadores en modo incógnito 
-  // a veces bloquean el acceso a localStorage y no queremos que la app crashee.
-  try {
-    const savedTimestamp = localStorage.getItem('acacia_intro_seen_time');
-    
-    if (!savedTimestamp) {
-      return true; // No existe la llave, forzamos el tutorial.
-    }
-
-    const expirationTime = parseInt(savedTimestamp, 10) + (24 * 60 * 60 * 1000); // 24 horas
-    const now = Date.now();
-
-    if (now > expirationTime) {
-      localStorage.removeItem('acacia_intro_seen_time');
-      return true; // Ya expiró, corre de nuevo.
-    }
-
-    return false; // Todo en orden, el usuario lo vio hace menos de 24 horas.
-  } catch (error) {
-    console.warn("localStorage no está disponible", error);
-    return false; // Fallback seguro
-  }
-});
+  const { runTutorial, handleJoyrideCallback } = useTutorial()
 
   const steps: Step[] = [
     {
@@ -141,20 +54,6 @@ export function Home() {
     }
   ]
 
-  // Tipamos correctamente el callback en lugar de usar 'any' (Buenas prácticas TypeScript)
-const handleJoyrideCallback = (data: any) => { // Te recomiendo importar 'CallBackProps' de react-joyride
-  const { status } = data;
-  
-  // 'finished' (le dio a Finalizar) o 'skipped' (le dio a Omitir)
-  if (status === 'finished' || status === 'skipped') {
-    try {
-      localStorage.setItem('acacia_intro_seen_time', Date.now().toString());
-    } catch (e) {
-      console.warn("No se pudo guardar en localStorage");
-    }
-    setRunTutorial(false);
-  }
-};
 
   if (mutacion.isSuccess && mutacion.data && estado.catalogoData) {
     return (

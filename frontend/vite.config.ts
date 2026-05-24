@@ -6,5 +6,15 @@ import tailwindcss from '@tailwindcss/vite'
 export default defineConfig({
   plugins: [
     react(), 
-    tailwindcss()],
+    tailwindcss()
+  ],
+  // NUEVO: Le enseñamos a Vite a ser el recepcionista en modo desarrollo
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+      }
+    }
+  }
 })
