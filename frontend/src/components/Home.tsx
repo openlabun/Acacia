@@ -1,13 +1,10 @@
 import React from 'react'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from "react-router-dom"
 import { useAcademicStore } from "../store/academicStore"
 import { useSimulationLogic } from "../hooks/useSimulationLogic"
 
 import { Joyride } from 'react-joyride'
 import type { Step } from 'react-joyride'
-
-// Componentes
 import { GraduationTimeline } from "./GraduationTimeline"
 import { ChainReactionModal } from "./modals/ChainReactionModal"
 import { PrereqNoticeModal } from "./modals/PrereqNoticeModal"
@@ -90,33 +87,31 @@ export function Home() {
   const navigate = useNavigate()
   const { payload } = useAcademicStore()
   const { estado, acciones, modales, mutacion } = useSimulationLogic()
-  const queryClient = useQueryClient()
 
-  // Tutorial con JOYRIDE
-  // Tutorial con JOYRIDE (Expira en 24 horas)
-  const { data: tutorialSeen = true } = useQuery({
-    queryKey: ['tutorialSeen'],
-    queryFn: () => {
-      const savedTimestamp = localStorage.getItem('acacia_intro_seen_time')
-      if (!savedTimestamp) return false // No lo ha visto nunca
+  const [runTutorial, setRunTutorial] = React.useState(() => {
+  // Envolvemos en un try-catch porque navegadores en modo incógnito 
+  // a veces bloquean el acceso a localStorage y no queremos que la app crashee.
+  try {
+    const savedTimestamp = localStorage.getItem('acacia_intro_seen_time');
+    
+    if (!savedTimestamp) {
+      return true; // No existe la llave, forzamos el tutorial.
+    }
 
-      const expirationTime = parseInt(savedTimestamp, 10) + (24 * 60 * 60 * 1000) // 24 horas en milisegundos
-      const now = Date.now()
+    const expirationTime = parseInt(savedTimestamp, 10) + (24 * 60 * 60 * 1000); // 24 horas
+    const now = Date.now();
 
-      if (now > expirationTime) {
-        // Ya pasaron las 24 horas: limpiamos el localStorage y forzamos a que salga de nuevo
-        localStorage.removeItem('acacia_intro_seen_time')
-        return false
-      }
+    if (now > expirationTime) {
+      localStorage.removeItem('acacia_intro_seen_time');
+      return true; // Ya expiró, corre de nuevo.
+    }
 
-      return true // Todavía está dentro de las 24 horas de gracia
-    },
-    staleTime: Infinity,
-    gcTime: Infinity,
-    initialData: false,
-  })
-
-  const [runTutorial, setRunTutorial] = React.useState(false)
+    return false; // Todo en orden, el usuario lo vio hace menos de 24 horas.
+  } catch (error) {
+    console.warn("localStorage no está disponible", error);
+    return false; // Fallback seguro
+  }
+});
 
   const steps: Step[] = [
     {
@@ -146,21 +141,20 @@ export function Home() {
     }
   ]
 
-  React.useEffect(() => {
-    if (!tutorialSeen) {
-      setRunTutorial(true)
+  // Tipamos correctamente el callback en lugar de usar 'any' (Buenas prácticas TypeScript)
+const handleJoyrideCallback = (data: any) => { // Te recomiendo importar 'CallBackProps' de react-joyride
+  const { status } = data;
+  
+  // 'finished' (le dio a Finalizar) o 'skipped' (le dio a Omitir)
+  if (status === 'finished' || status === 'skipped') {
+    try {
+      localStorage.setItem('acacia_intro_seen_time', Date.now().toString());
+    } catch (e) {
+      console.warn("No se pudo guardar en localStorage");
     }
-  }, [tutorialSeen])
-
-  const handleJoyrideCallback = (data: any) => {
-    const { status } = data
-    if (status === 'finished' || status === 'skipped') {
-      // Guardamos la marca de tiempo exacta del sistema actual
-      localStorage.setItem('acacia_intro_seen_time', Date.now().toString())
-      queryClient.setQueryData(['tutorialSeen'], true)
-      setRunTutorial(false)
-    }
+    setRunTutorial(false);
   }
+};
 
   if (mutacion.isSuccess && mutacion.data && estado.catalogoData) {
     return (
